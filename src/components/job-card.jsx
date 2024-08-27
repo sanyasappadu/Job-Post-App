@@ -1,6 +1,7 @@
 
 /* eslint-disable react/prop-types */
-import { MapPinIcon, Trash2Icon } from "lucide-react";
+import {useState, useEffect} from 'react';
+import { Heart, MapPinIcon, Trash2Icon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,6 +12,8 @@ import {
 import { useUser } from "@clerk/clerk-react";
 import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
+import useFetch from '@/hooks/use-fetch';
+import { saveJob } from '@/api/apiJobs';
 
 const JobCard = ({
   job,
@@ -18,35 +21,35 @@ const JobCard = ({
   onJobAction = () => {},
   isMyJob = false,
 }) => {
-
+  const [saved, setSaved] = useState(savedInit);
   const { user } = useUser();
 
   // const { loading: loadingDeleteJob, fn: fnDeleteJob } = useFetch(deleteJob, {
   //   job_id: job.id,
   // });
 
-  // const {
-  //   loading: loadingSavedJob,
-  //   data: savedJob,
-  //   fn: fnSavedJob,
-  // } = useFetch(saveJob);
+  const {
+    loading: loadingSavedJob,
+    data: savedJob,
+    fn: fnSavedJob,
+  } = useFetch(saveJob, {alreadySaved:saved});
 
-  // const handleSaveJob = async () => {
-  //   await fnSavedJob({
-  //     user_id: user.id,
-  //     job_id: job.id,
-  //   });
-  //   onJobAction();
-  // };
+  const handleSaveJob = async () => {
+    await fnSavedJob({
+      user_id: user.id,
+      job_id: job.id,
+    });
+    onJobAction();
+  };
 
   // const handleDeleteJob = async () => {
   //   await fnDeleteJob();
   //   onJobAction();
   // };
 
-  // useEffect(() => {
-  //   if (savedJob !== undefined) setSaved(savedJob?.length > 0);
-  // }, [savedJob]);
+  useEffect(() => {
+    if (savedJob !== undefined) setSaved(savedJob?.length > 0);
+  }, [savedJob]);
 
   return (
     <Card className="flex flex-col">
@@ -82,7 +85,7 @@ const JobCard = ({
             More Details
           </Button>
         </Link>
-        {/* {!isMyJob && (
+        {!isMyJob && (
           <Button
             variant="outline"
             className="w-15"
@@ -95,7 +98,7 @@ const JobCard = ({
               <Heart size={20} />
             )}
           </Button>
-        )} */}
+        )}
       </CardFooter>
     </Card>
   );
